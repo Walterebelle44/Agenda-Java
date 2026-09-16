@@ -50,3 +50,10 @@ Agenda/
 
 
 ajout du webhooks
+
+
+Déclenchement automatique : ajouter un webhook GitHub pour lancer le pipeline à chaque push au lieu de le lancer manuellement
+
+Notifications : un message Slack/email en cas d'échec ou de succès
+
+Tests automatisés : si tu ajoutes des tests JUnit au projet plus tard

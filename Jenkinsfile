@@ -14,10 +14,11 @@ pipeline {
     // }
 
     environment {
-        SRC_DIR    = 'src'
-        BUILD_DIR  = 'bin'
-        JAR_NAME   = 'Agenda.jar'
-        MAIN_CLASS = 'Agenda'
+        SRC_DIR      = 'src'
+        BUILD_DIR    = 'bin'
+        JAR_NAME     = 'Agenda.jar'
+        MAIN_CLASS   = 'Agenda'
+        NOTIFY_EMAIL = 'walterebelle4@gmail.com'
     }
 
     options {
@@ -81,9 +82,29 @@ pipeline {
     post {
         success {
             echo "✅ Build réussi : ${JAR_NAME} est prêt."
+            mail to: "${NOTIFY_EMAIL}",
+                 subject: "✅ SUCCÈS - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: """Bonjour,
+
+Le build ${env.BUILD_NUMBER} du job ${env.JOB_NAME} a réussi.
+
+Voir les détails et télécharger le JAR :
+${env.BUILD_URL}
+
+-- Jenkins"""
         }
         failure {
             echo '❌ Le build a échoué. Consultez les logs ci-dessus.'
+            mail to: "${NOTIFY_EMAIL}",
+                 subject: "❌ ÉCHEC - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: """Bonjour,
+
+Le build ${env.BUILD_NUMBER} du job ${env.JOB_NAME} a échoué.
+
+Voir les logs :
+${env.BUILD_URL}console
+
+-- Jenkins"""
         }
     }
 }

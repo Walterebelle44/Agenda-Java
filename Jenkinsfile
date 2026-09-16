@@ -14,11 +14,15 @@ pipeline {
     // }
 
     environment {
-        SRC_DIR      = 'src'
-        BUILD_DIR    = 'bin'
-        JAR_NAME     = 'Agenda.jar'
-        MAIN_CLASS   = 'Agenda'
-        NOTIFY_EMAIL = 'walterebelle4@gmail.com'
+        SRC_DIR       = 'src'
+        TEST_DIR      = 'src\\test'
+        BUILD_DIR     = 'bin'
+        TEST_BUILD_DIR = 'bin-test'
+        JAR_NAME      = 'Agenda.jar'
+        MAIN_CLASS    = 'Agenda'
+        NOTIFY_EMAIL  = 'walterebelle4@gmail.com'
+        JUNIT_JAR     = 'junit-platform-console-standalone.jar'
+        JUNIT_URL     = 'https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.2/junit-platform-console-standalone-1.10.2.jar'
     }
 
     options {
@@ -55,6 +59,27 @@ pipeline {
             steps {
                 echo 'Compilation du projet Java...'
                 bat "javac -d ${BUILD_DIR} ${SRC_DIR}\\*.java"
+            }
+        }
+
+        stage('Download JUnit') {
+            steps {
+                echo 'Téléchargement de JUnit (si absent)...'
+                bat """
+                    if not exist ${JUNIT_JAR} (
+                        curl -L -o ${JUNIT_JAR} "${JUNIT_URL}"
+                    )
+                """
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Compilation et exécution des tests unitaires...'
+                bat "if exist ${TEST_BUILD_DIR} rmdir /S /Q ${TEST_BUILD_DIR}"
+                bat "mkdir ${TEST_BUILD_DIR}"
+                bat "javac -cp ${BUILD_DIR};${JUNIT_JAR} -d ${TEST_BUILD_DIR} ${TEST_DIR}\\*.java"
+                bat "java -jar ${JUNIT_JAR} execute --class-path ${BUILD_DIR};${TEST_BUILD_DIR} --scan-classpath --details=tree"
             }
         }
 

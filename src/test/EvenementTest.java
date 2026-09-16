@@ -3,9 +3,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import static org.junit.jupiter.api.Assertions.*;
 
-
-
-
 public class EvenementTest {
 
     @Test
@@ -46,11 +43,19 @@ public class EvenementTest {
 
     @Test
     void unEvenementAujourdhuiAvecHeureFutureNestPasPasse() {
+        LocalTime maintenant = LocalTime.now();
+        // On évite tout dépassement de minuit qui ferait "boucler" l'heure
+        // vers une valeur antérieure à "maintenant" (bug lié à l'heure
+        // d'exécution du test, pas à la logique testée).
+        LocalTime heureFuture = maintenant.isBefore(LocalTime.of(22, 0))
+                ? maintenant.plusHours(2)
+                : LocalTime.of(23, 59, 59);
+
         Evenement e = new Evenement(
                 "Réunion",
                 "desc",
                 LocalDate.now(),
-                LocalTime.now().plusHours(2),
+                heureFuture,
                 "Travail"
         );
         assertFalse(e.estPasse());
